@@ -1,0 +1,76 @@
+captainVersion: 4
+services:
+    $$cap_appname:
+        ports:
+          - $$cap_public_port:25565
+        caproverExtra:
+          dockerfileLines:
+            - FROM openjdk:alpine
+            - MAINTAINER Jin Van <usconan@gmail.com>
+            - ENV SERVER_PORT 25565
+            - WORKDIR /minecraft
+            - USER root
+            - RUN adduser -D minecraft && \
+            - apk --no-cache add curl wget && \
+            - mkdir -p /minecraft/world && \
+            - mkdir -p /minecraft/cfg && \
+            - mkdir -p /minecraft/backups
+            - RUN echo 'export JAVACMD="java"' > /minecraft/cfg/settings-local.sh && \
+            - echo 'export MIN_RAM="$$cap_min_ram"' >> /minecraft/cfg/settings-local.sh && \
+            - echo 'export MAX_RAM="$$cap_max_ram"' >> /minecraft/cfg/settings-local.sh && \
+            - echo 'export PERMGEN_SIZE=""' >> /minecraft/cfg/settings-local.sh && \
+            - echo 'export JAVA_PARAMETERS="-XX:+DisableExplicitGC -XX:+UseConcMarkSweepGC -XX:+UseNUMA -XX:+CMSIncrementalPacing -XX:MaxTenuringThreshold=15 -XX:MaxGCPauseMillis=30 -XX:-UseGCOverheadLimit -XX:+UseBiasedLocking -XX:SurvivorRatio=8 -XX:TargetSurvivorRatio=90 -Dfml.ignorePatchDiscrepancies=true -Dfml.ignoreInvalidMinecraftCertificates=true -XX:+UseCompressedOops -XX:+OptimizeStringConcat -XX:+AggressiveOpts -XX:ReservedCodeCacheSize=2048m -XX:+UseCodeCacheFlushing -XX:SoftRefLRUPolicyMSPerMB=20000 -XX:ParallelGCThreads=4"' >> /minecraft/cfg/settings-local.sh
+            - RUN curl -SLO $$cap_server_zip && \
+            - unzip download && \
+            - chmod u+x *.sh && \
+            - echo "eula=true" > /minecraft/eula.txt && \
+            - echo "[]" > /minecraft/cfg/ops.json && \
+            - echo "[]" > /minecraft/cfg/whitelist.json && \
+            - echo "[]" > /minecraft/cfg/banned-ips.json && \
+            - echo "[]" > /minecraft/cfg/banned-players.json && \
+            - echo "[]" > /minecraft/cfg/server.properties && \
+            - ln -s /minecraft/cfg/ops.json /minecraft/ops.json && \
+            - ln -s /minecraft/cfg/whitelist.json /minecraft/whitelist.json && \
+            - ln -s /minecraft/cfg/banned-ips.json /minecraft/banned-ips.json && \
+            - ln -s /minecraft/cfg/banned-players.json /minecraft/banned-players.json && \
+            - ln -s /minecraft/cfg/server.properties /minecraft/server.properties && \
+            - ln -s /minecraft/cfg/settings-local.sh /minecraft/settings-local.sh && \
+            - chown -R minecraft:minecraft /minecraft
+            - USER minecraft
+            - RUN /minecraft/FTBInstall.sh
+            - VOLUME ["/minecraft/world"]
+            - VOLUME ["/minecraft/cfg"]
+            - VOLUME ["/minecraft/backups"]
+            - EXPOSE ${SERVER_PORT}
+            - CMD ["/bin/sh", "/minecraft/ServerStart.sh"]
+          notExposeAsWebApp: 'true'
+        volumes:
+            - $$cap_appname-world:/minecraft/world
+            - $$cap_appname-cfg:/minecraft/cfg
+            - $$cap_appname-backups:/minecraft/backups
+        restart: always
+caproverOneClickApp:
+    variables:
+        - id: $$cap_server_zip
+          label: Link to your server zip
+          description: See FTB server on the curseforge
+          validRegex: /^http.*$/
+        - id: $$cap_public_port
+          label: Public minecraft port
+          description: That port must be allowed on the host firewall
+          defaultValue: 25565
+          validRegex: /^\d+$/
+        - id: $$cap_min_ram
+          label: Min ram
+          defaultValue: 1G
+          validRegex: /^\d+G$/
+        - id: $$cap_max_ram
+          label: Max ram
+          defaultValue: 2G
+          validRegex: /^\d+G$/
+    instructions:
+        start: Enter downloadable link to the complete minecraft server zip
+        end: You might be edit server properties and set offline mode to false. After that click "Save app" in caprover for restart. And enjoy $$cap_appname:$$cap_public_port
+    displayName: Minecraft
+    description: Minecraft - Time destroy game
+    documentation: Taken from https://microsoft.com
