@@ -1,0 +1,34 @@
+captainVersion: 4
+services:
+  $$cap_appname-workspace:
+    caproverExtra:
+      dockerfileLines:
+        - FROM dimti/workspace:7.4
+        - RUN userdel www-data
+        - RUN usermod -u $$cap_uid laradock && groupmod -g $$cap_uid laradock
+        - RUN chown -R $$cap_uid:$$cap_uid /home/laradock
+        - RUN ssh-keygen -f /root/.ssh/id_rsa -N ''
+        - RUN echo "$$cap_public_key" > /root/.ssh/authorized_keys
+        - RUN chmod 644 /root/.ssh/authorized_keys
+        - RUN rm /home/laradock/.ssh/id_rsa /home/laradock/.ssh/known_hosts
+        - RUN cp -rf /root/.ssh /home/laradock
+        - RUN chown -R laradock:laradock /home/laradock/.ssh
+        - RUN sed -i "s/alias gs=/alias gst=/" /home/laradock/aliases.sh
+      notExposeAsWebApp: 'true'
+    volumes:
+      - $$cap_volume_path:/var/www
+    restart: always
+caproverOneClickApp:
+  instructions:
+    start: You can enter to the this container with bash and enjoy build your app inside hot environment
+    end: Workspace is deployed and available as $$cap_appname
+  displayName: workspace74
+  variables:
+    - id: $$cap_volume_path
+      label: Your website persistent volume full path
+      defaultValue: /var/lib/docker/volumes/captain--NAME_OF_SERVICE-data/_data
+    - id: $$cap_public_key
+      label: Public key from sshd container
+    - id: $$cap_uid
+      label: UID
+      defaultValue: 33
