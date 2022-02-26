@@ -13,7 +13,8 @@ services:
         - RUN rm /home/laradock/.ssh/id_rsa /home/laradock/.ssh/known_hosts
         - RUN cp -rf /root/.ssh /home/laradock
         - RUN chown -R laradock:laradock /home/laradock/.ssh
-        - RUN sed -i "s/alias gs=/alias gst=/" /home/laradock/aliases.sh
+        - RUN curl "$$cap_aliases" > /home/laradock/.bash_aliases
+        - RUN chown laradock:laradock /home/laradock/.bash_aliases
       notExposeAsWebApp: 'true'
     volumes:
       - $$cap_volume_path:/var/www
@@ -32,3 +33,6 @@ caproverOneClickApp:
     - id: $$cap_uid
       label: UID
       defaultValue: 33
+    - id: $$cap_aliases
+      label: Git or any yours bash aliases
+      defaultValue: https://vcs.wpstudio.ru/wpstudio/autodeploy/raw/branch/master/.bash_aliases

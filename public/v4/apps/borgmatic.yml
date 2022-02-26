@@ -1,0 +1,18 @@
+captainVersion: 4
+services:
+  $$cap_appname:
+    caproverExtra:
+      dockerfileLines:
+        - FROM b3vis/borgmatic
+        - MAINTAINER Jin Van <usconan@gmail.com>
+        - ENV TZ "Europe/Moscow"
+        - VOLUME ["/root/repos"]
+      notExposeAsWebApp: 'true'
+    volumes:
+      - $$cap_appname-repos:/root/repos
+    restart: always
+caproverOneClickApp:
+  instructions:
+    start: Enjoy without any settings
+    end: Have i nice day
+  displayName: Borgmatic
