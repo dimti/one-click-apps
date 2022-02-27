@@ -7,14 +7,15 @@ services:
         - RUN userdel www-data
         - RUN usermod -u $$cap_uid laradock && groupmod -g $$cap_uid laradock
         - RUN chown -R $$cap_uid:$$cap_uid /home/laradock
-        - RUN ssh-keygen -f /root/.ssh/id_rsa -N ''
-        - RUN echo "$$cap_public_key" > /root/.ssh/authorized_keys
-        - RUN chmod 644 /root/.ssh/authorized_keys
-        - RUN rm /home/laradock/.ssh/id_rsa /home/laradock/.ssh/known_hosts
-        - RUN cp -rf /root/.ssh /home/laradock
-        - RUN chown -R laradock:laradock /home/laradock/.ssh
+        - RUN rm -rf /home/laradock/.config
+        - RUN rm -rf /home/laradock/.ssh
+        - USER laradock
+        - RUN mkdir /home/laradock/.ssh
+        - RUN ssh-keygen -f /home/laradock/.ssh/id_rsa -N '' -C '$$cap_appname-workspace'
+        - RUN echo "$$cap_public_key" > /home/laradock/.ssh/authorized_keys
+        - RUN chmod 644 /home/laradock/.ssh/authorized_keys
         - RUN curl "$$cap_aliases" > /home/laradock/.bash_aliases
-        - RUN chown laradock:laradock /home/laradock/.bash_aliases
+        - USER root
       notExposeAsWebApp: 'true'
     volumes:
       - $$cap_volume_path:/var/www
