@@ -27,7 +27,7 @@ caproverOneClickApp:
   displayName: workspace74
   variables:
     - id: $$cap_volume_path
-      label: Your website persistent volume full path
+      label: Your website persistent volume full path. For WP you need adding `-wp` suffix after NAME_OF_SERVICE.
       defaultValue: /var/lib/docker/volumes/captain--NAME_OF_SERVICE-data/_data
     - id: $$cap_public_key
       label: Public key from sshd container
@@ -35,5 +35,5 @@ caproverOneClickApp:
       label: UID
       defaultValue: 33
     - id: $$cap_aliases
-      label: Git or any yours bash aliases
+      label: Yours bash aliases
       defaultValue: https://vcs.wpstudio.ru/wpstudio/autodeploy/raw/branch/master/.bash_aliases
