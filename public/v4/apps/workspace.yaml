@@ -9,12 +9,16 @@ services:
         - RUN chown -R $$cap_uid:$$cap_uid /home/laradock
         - RUN rm -rf /home/laradock/.config
         - RUN rm -rf /home/laradock/.ssh
+        - RUN composer self-update --2
+        - RUN sed -i 's/^mozilla\/DST_Root_CA_X3\.crt/!mozilla\/DST_Root_CA_X3.crt/g'  /etc/ca-certificates.conf && update-ca-certificates
         - USER laradock
         - RUN mkdir /home/laradock/.ssh
         - RUN ssh-keygen -f /home/laradock/.ssh/id_rsa -N '' -C '$$cap_appname-workspace'
         - RUN echo "$$cap_public_key" > /home/laradock/.ssh/authorized_keys
         - RUN chmod 644 /home/laradock/.ssh/authorized_keys
         - RUN curl "$$cap_aliases" > /home/laradock/.bash_aliases
+        - RUN git config --global user.name "$$cap_git_user"
+        - RUN git config --global user.email "$$cap_git_email"
         - USER root
       notExposeAsWebApp: 'true'
     volumes:
@@ -37,3 +41,9 @@ caproverOneClickApp:
     - id: $$cap_aliases
       label: Yours bash aliases
       defaultValue: https://vcs.wpstudio.ru/wpstudio/autodeploy/raw/branch/master/.bash_aliases
+    - id: $$cap_git_user
+      label: GIT user
+      defaultValue: WP Studio
+    - id: $$cap_git_email
+      label: GIT email
+      defaultValue: info@wpstudio.ru
