@@ -1,0 +1,19 @@
+captainVersion: 4
+services:
+  $$cap_appname:
+    caproverExtra:
+      dockerfileLines:
+        - FROM phusion/baseimage:focal-1.2.0
+        - RUN cd root && \
+        - curl -LJO https://github.com/Tiiffi/mcrcon/releases/download/v0.7.2/mcrcon-0.7.2-linux-x86-64.tar.gz && \
+        - tar xvf mcrcon-0.7.2-linux-x86-64.tar.gz && \
+        - cp mcrcon /usr/sbin/
+        - CMD ["/sbin/my_init"]
+        - RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+      notExposeAsWebApp: 'true'
+    restart: always
+caproverOneClickApp:
+  instructions:
+    start: Enjoy without any settings
+    end: Have i nice day
+  displayName: RCON
